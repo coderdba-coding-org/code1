@@ -1,0 +1,4 @@
+- name: Generate kube-proxy certificates
+  shell:
+    cmd: ./kube-proxy-gen.sh
+    chdir: "{{ var_kube_certs_workdir }}"

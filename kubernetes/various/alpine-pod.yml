@@ -1,0 +1,22 @@
+# https://github.com/infrabricks/kubernetes-standalone/blob/master/examples/alpine.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine
+  namespace: default
+spec:
+  containers:
+  - image: alpine
+    command: 
+      - /bin/sh
+    #args: 
+      - "-c" 
+      - "while true; do date >> /var/nfs/dates.txt; sleep 5; done"
+    #command:
+      #- /bin/sh
+      #- "-c"
+      #- "sleep 60m"
+    imagePullPolicy: IfNotPresent
+    name: alpine
+  restartPolicy: Always

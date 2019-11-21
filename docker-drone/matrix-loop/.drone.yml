@@ -1,0 +1,103 @@
+secrets:
+  # Artifactory password - to publish to docker repo in Artifactory
+  artifactory_password:
+    path: secret/org/Kubernetes/artifactoryuserpassword
+  # The ~/.kube/kubeconfig file to deploy pod
+  kube-config:
+    path: secret/org/Kubernetes/kube-config
+
+# Kubernetes pod deploy steps
+# Note: -f ./manifests --> this will run all files in that folder
+deploy-pod-steps: &deploy_pod_steps
+  commands:
+    - mkdir -p ~/.kube/
+    - echo "$CONFIG" > ~/.kube/config
+    - kubectl config use-context ${CONTEXT}
+    - echo "Deploying to ${ENV}"
+    - kubectl -n $${ENV} create -f ./manifests || kubectl -n $${ENV} replace -f ./manifests
+
+# Secrets/passwords/contexts
+deploy-kube-secrets: &deploy_kube_secrets
+  secrets:
+    - source: kube-config
+      target: config
+
+pipeline:
+
+  # build-docker:
+  #   image: plugins/docker
+  #   registry: docker.company.com/kubernetes
+  #   repo: docker.company.com/kubernetes/healtcheckthing
+  #   dry_run: true
+ 
+  # for now, it is only for pull_request of any branch 
+  # - modify for other events/branches as needed
+  publish-image:
+    when:
+      event: pull_request
+      matrix:
+        GROUP: build_image
+    image: plugins/docker
+    registry: docker.company.com/kubernetes
+    repo: docker.company.com/kubernetes/healtcheckthing
+    username: artifactoryuser
+    secrets:
+      - source: artifactory_password
+        target: plugin_password
+
+  deploy-to-lab-cluster:
+    when:
+      event: pull_request
+      matrix:
+        GROUP: labs
+    image: docker.company.com/kubernetes/kubectl:v1.9.3
+    <<: *deploy_kube_secrets
+    <<: *deploy_pod_steps
+
+  deploy_all:
+    when:
+      branch: master
+      event: push
+      matrix:
+        GROUP: xprod
+    image: docker.company.com/kubernetes/kubectl:v1.9.3
+    <<: *deploy_kube_secrets
+    <<: *deploy_pod_steps
+
+  deploy_prod_in_sets:
+    when:
+      branch: master
+      event: push
+      matrix:
+        GROUP: prod
+    image: docker.company.com/kubernetes/kubectl:v1.9.3
+    <<: *deploy_kube_secrets
+    <<: *deploy_pod_steps
+
+matrix:
+  include:
+    - GROUP: build_image
+#
+    - ENV: cluster-lab
+      GROUP: labs
+      CONTEXT: kube-system
+#
+    - ENV: cluster-d1
+      GROUP: dev
+      CONTEXT: kube-system
+#
+    - ENV: cluster-d2
+      GROUP: dev
+      CONTEXT: kube-system
+#
+    - ENV: cluster-p1
+      GROUP: prod
+      CONTEXT: kube-system
+#
+    - ENV: cluster-p2
+      GROUP: prod
+      CONTEXT: kube-system
+#
+    - ENV: cluster-p3
+      GROUP: prod
+      CONTEXT: kube-system

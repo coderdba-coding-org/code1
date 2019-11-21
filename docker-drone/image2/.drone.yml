@@ -1,0 +1,38 @@
+secrets:
+  artifactory_password:
+    path: secret/org/Kubernetes/artifactoryuserpassword
+  kube-config:
+    path: secret/org/Kubernetes/kube-config
+
+# The published image will have name trial-docker-artifactory-test1 with no tag, or rather, 'latest' as tag
+# Example: trial-docker-artifactory-test1:latest
+
+# MATRIX is something to loop through many deployments - not really required
+# THE IDEA HERE IS TO SHOW THAT ALL REPO BUILD COMMAND CAN BE EMBEDDED IN THE PUBLISH-IMAGE LIKE SECTION
+# INSTEAD OF A REFERENCE SECTION AND POINTER AT THE TOP OF THE FILE
+
+pipeline:
+  # build-docker:
+  #   image: plugins/docker
+  #   registry: docker.company.com/kubernetes
+  #   repo: docker.company.com/kubernetes/trial-docker-artifactory-test1
+  #   dry_run: true
+
+  publish-image:
+    when:
+      event: pull_request
+      matrix:
+        GROUP: build_image
+    image: plugins/docker
+    registry: docker.company.com/kubernetes
+    repo: docker.company.com/kubernetes/trial-docker-artifactory-test1
+    username: artifactoryuser
+    secrets:
+      - source: artifactory-password
+        target: plugin_password
+
+matrix:
+  include:
+    - GROUP: build_image
+    - ENV: general-lab
+      GROUP: labs

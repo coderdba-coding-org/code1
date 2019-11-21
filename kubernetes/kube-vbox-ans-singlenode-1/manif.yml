@@ -1,0 +1,24 @@
+#- name: Manifests
+  #hosts: all
+  #roles:
+  #- { role: manifests }
+
+- name: Kubelet config
+  hosts: all
+  roles:
+  - { role: kubelet }
+
+#- name: kube-proxy 
+  #hosts: all
+  #roles:
+  #- { role: kube-proxy }
+
+#- name: kube-dns 
+  #hosts: all
+  #roles:
+  #- { role: kube-dns }
+
+#- name: flannel 
+  #hosts: all
+  #roles:
+  #- { role: flannel }

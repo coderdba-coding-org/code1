@@ -1,0 +1,52 @@
+#
+secrets:
+  artifactory-password:
+    path: secret/org/kubernetes/artifactoryuserpassword
+
+docker_secrets: &docker_secrets
+  username: artifactoryuser
+  secrets:
+    - source: artifactory-password
+      target: plugin_password
+
+docker_base: &docker_base
+  image: plugins/docker
+  registry: docker.company.com/app/kubernetes/golang1
+  repo: docker.company.com/app/kubernetes/golang1
+  storage_path: /drone/src/git.company.com/drone/golang1/.docker
+
+pipeline:
+  # overriding the default clone functionality to use head ref instead of merge ref
+  # this should no longer be needed when with Drone 0.8.4 which comes with the flag DRONE_GITHUB_MERGE_REF that we'll likely set to false
+  fetch-head:
+    when:
+      event: pull_request
+    image: alpine/git
+    commands:
+      - git fetch --no-tags origin +refs/pull/${DRONE_PULL_REQUEST}/head
+      - git checkout -qf FETCH_HEAD
+
+  build_go:
+    image: golang:alpine
+    environment:
+      - GOPATH=/drone
+    commands:
+      - go build
+
+  build_docker_image:
+    dry_run: true
+    <<: *docker_base
+
+  publish-docker-image-prerelease:
+    when:
+      event: push
+    tag: [ dev, "0.0.${DRONE_BUILD_NUMBER}" ]
+    <<: *docker_secrets
+    <<: *docker_base
+
+  publish-docker-image-release:
+    when:
+      event: tag
+    tag: [ stable, "${DRONE_TAG}" ]
+    <<: *docker_secrets
+    <<: *docker_base

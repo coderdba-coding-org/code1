@@ -1,0 +1,5 @@
+- name: create a file
+  hosts: localhost
+  tasks:
+    - name: Just cats the passwd file to /tmp/passsd
+      shell: cat /etc/passwd > /tmp/passwd

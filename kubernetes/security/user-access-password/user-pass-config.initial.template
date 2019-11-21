@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Config
+preferences: {}
+
+clusters:
+- cluster:
+  name: scratch
+- cluster:
+  name: development
+
+users:
+- name: devuser1
+- name: devuser2
+
+contexts:
+- context:
+  name: scratch-default-ns
+- context:
+  name: scratch-kube-system-ns

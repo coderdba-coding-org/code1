@@ -1,0 +1,3 @@
+bitnami/node-exporter:latest
+
+docker run --name node-exporter -d bitnami/node-exporter -p 9100:9100

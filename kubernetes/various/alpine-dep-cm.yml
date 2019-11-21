@@ -1,0 +1,62 @@
+---
+kind: ConfigMap
+metadata:
+  annotations:
+  name: alpine-dep-cm
+apiVersion: v1
+data:
+  alpine-dep-cm.yaml: |-
+    ---
+    MemberIpSuffixes:
+      - "191"
+      - "192"
+      - "193"
+      - "194"
+    IngressIpSuffix: "190"
+    MaxFailedClaimAttempts: 5
+    PollingInterval: "10s"
+    NIC: "eth1"
+    Netmask: "/26"
+    Debug: true
+
+
+---
+# https://github.com/infrabricks/kubernetes-standalone/blob/master/examples/alpine.yml
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: alpine-dep-cm
+  namespace: default
+spec:
+  selector:
+    matchLabels: 
+      app: alpine-dep-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: alpine-dep-label
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: alpine
+        command:
+          - /bin/sh
+          - "-c"
+          - "tail -f /dev/null"
+        imagePullPolicy: IfNotPresent
+        name: alpine-dep-cm-cont
+        volumeMounts:
+          - name: config
+            mountPath: /opt/alpine-dep-cm
+          - name: network-scripts
+            mountPath: /etc/sysconfig/network-scripts
+#
+      volumes:
+      - name: config
+        configMap:
+          name: alpine-dep-cm
+      - name: network-scripts
+        hostPath:
+          path: /etc/sysconfig/network-scripts

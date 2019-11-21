@@ -1,0 +1,20 @@
+# https://matthewpalmer.net/kubernetes-app-developer/articles/configmap-example-yaml.html
+
+---
+kind: Pod 
+apiVersion: v1 
+metadata:
+  name: alpine-pod-cm-envvar2
+spec:
+  containers:
+    - name: env-var-configmap
+      image: alpine
+      command:
+        - /bin/sh
+        - "-c"
+        - "tail -f /dev/null"
+      imagePullPolicy: IfNotPresent
+      # This gets all variables
+      envFrom:
+        - configMapRef:
+            name: cm-env1

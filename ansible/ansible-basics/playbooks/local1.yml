@@ -1,0 +1,12 @@
+- hosts: localhost
+  vars:
+    http_port: 80
+    max_clients: 200
+    file_name: "/tmp/touch.file"
+
+  #become: true
+  #remote_user: root
+
+  tasks:
+    - name: Just cats the passwd file to /tmp/passsd
+      shell: cat /etc/passwd > /tmp/passwd

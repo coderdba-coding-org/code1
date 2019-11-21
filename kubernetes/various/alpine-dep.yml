@@ -1,0 +1,26 @@
+# https://github.com/infrabricks/kubernetes-standalone/blob/master/examples/alpine.yml
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: alpine-dep
+  namespace: default
+spec:
+  selector:
+    matchLabels: 
+      app: alpine-dep-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: alpine-dep-label
+    spec:
+      containers:
+      - image: alpine
+        command:
+          - /bin/sh
+          - "-c"
+          - "sleep 60m"
+        imagePullPolicy: IfNotPresent
+        name: alpine-dep-cont
+      restartPolicy: Always

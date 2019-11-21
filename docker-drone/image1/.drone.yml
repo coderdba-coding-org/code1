@@ -1,0 +1,89 @@
+#
+secrets:
+  artifactory-password:
+    path: secret/org/kubernetes/artifactoryuserpassword
+
+docker_passwords: &docker_passwords
+  username: artifactoryuser
+  secrets:
+    - source: artifactory-password
+      target: plugin_password
+
+
+# The published image will have name trial-docker-artifactory-test1:tag with tag as specified later in this file
+# Example: trial-docker-artifactory-test1:east-0.0.1
+#
+# To docker-pull this into machines, 'docker pull kubernetes/trial-docker-artifactory-test1:tag'
+
+docker_base: &docker_base
+  image: plugins/docker
+  registry: docker.company.com/kubernetes/trial-docker-artifactory-test1
+  repo: docker.company.com/kubernetes/trial-docker-artifactory-test1
+  # This is the work directory in the plugins/docker container
+  storage_path: /drone/src/git.company.com/drone/trial-docker-artifactory-test1/.docker
+
+docker_base_trial: &docker_base_trial
+  image: plugins/docker
+  registry: docker.company.com/trialm/trial-docker-artifactory-test1
+  repo: docker.company.com/trialm/trial-docker-artifactory-test1
+  storage_path: /drone/src/git.company.com/drone/trial-docker-artifactory-test1/.docker
+  
+pipeline:
+  # overriding the default clone functionality to use head ref instead of merge ref
+  # this should no longer be needed when Target upgrades to Drone 0.8.4 which comes with the flag DRONE_GITHUB_MERGE_REF that we'll likely set to false
+  fetch-head:
+    when:
+      event: pull_request
+    image: alpine/git
+    commands:
+      - git fetch --no-tags origin +refs/pull/${DRONE_PULL_REQUEST}/head
+      - git checkout -qf FETCH_HEAD
+
+#  build_binary:
+#    image: golang:alpine
+#    environment:
+#      - GOPATH=/drone
+#    commands:
+#      - go build
+
+  # This dry run step happens for multiple events
+  # - it does not publish anything as we have not provided artifactory passwords/secrets 
+  build_docker_image:
+    dry_run: true
+    <<: *docker_base
+
+  publish-latest-to-docker-repo:
+    when:
+      event: push
+      branch: east_zone_branch
+    tag: [ dev, "east-0.0.${DRONE_BUILD_NUMBER}" ]
+    # alternate tag if we dont want to have too many builds
+    #tag: [ dev, "east-test-image" ]
+    <<: *docker_passwords
+    <<: *docker_base
+
+  publish-latest-to-docker-repo-master-branch:
+    when:
+      event: push
+      branch: master
+    tag: [ dev, "0.0.${DRONE_BUILD_NUMBER}" ]
+    # alternate tag if we dont want to have too many builds
+    #tag: [ dev, "master-test-image" ]
+    <<: *docker_passwords
+    <<: *docker_base
+
+  publish-stable-to-docker-repo:
+    when:
+      event: tag
+      branch: east_zone_branch
+    tag: [ stable, "east-${DRONE_TAG}" ]
+    <<: *docker_passwords
+    <<: *docker_base
+
+  publish-stable-to-docker-repo-master-branch:
+    when:
+      event: tag
+      branch: master
+    tag: [ stable, "-${DRONE_TAG}" ]
+    <<: *docker_passwords
+    <<: *docker_base

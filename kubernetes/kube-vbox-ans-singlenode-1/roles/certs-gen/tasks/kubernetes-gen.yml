@@ -1,0 +1,4 @@
+- name: Generate kubernetes certificates
+  shell:
+    cmd: ./kubernetes-gen.sh
+    chdir: "{{ var_kube_certs_workdir }}"

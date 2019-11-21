@@ -1,0 +1,1 @@
+go run main.go -LB_FQDN="myapp.company.com"

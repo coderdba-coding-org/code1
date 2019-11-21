@@ -1,0 +1,3 @@
+#kubectl create configmap game-config-2 --from-file=configure-pod-container/configmap/game.properties
+
+kubectl create configmap cm-env1 --from-file=./cm.env1

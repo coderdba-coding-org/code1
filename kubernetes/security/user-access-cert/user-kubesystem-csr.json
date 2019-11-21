@@ -1,0 +1,16 @@
+{
+  "CN": "user-kubesystem",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "IN",
+      "L": "INDIA",
+      "O": "INDIA",
+      "OU": "Kubernetes",
+      "ST": "Kubernetes"
+    }
+  ]
+}

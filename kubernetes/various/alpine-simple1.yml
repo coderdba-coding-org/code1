@@ -1,0 +1,66 @@
+---
+kind: ConfigMap
+metadata:
+  annotations:
+  name: alpine-simple1
+apiVersion: v1
+data:
+  alpine-simple1.yaml: |-
+    ---
+    MemberIpSuffixes:
+      - "191"
+      - "192"
+      - "193"
+      - "194"
+    IngressIpSuffix: "190"
+    MaxFailedClaimAttempts: 5
+    PollingInterval: "10s"
+    NIC: "eth1"
+    Netmask: "/26"
+    Debug: true
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: alpine-simple1
+spec:
+  selector:
+    matchLabels: 
+      app: alpine-simple
+  replicas: 1
+  #
+  # template for the replica
+  template:
+    metadata:
+      labels:
+        app: alpine-simple
+    spec:
+      #
+      # one or more containers
+      containers:
+      #
+      # container 1
+      - name: alpine-simple1a
+        image: alpine
+        ports:
+        - containerPort: 22
+      volumeMounts:
+        - name: config
+          mountPath: /opt/ip-controller
+        - name: network-scripts
+          mountPath: /etc/sysconfig/network-scripts
+      #
+      # container 2
+      - name: alpine-simple1b
+        image: alpine
+        ports:
+        - containerPort: 22
+      #
+      # Volumes to mount
+      volumes:
+      - name: config
+        configMap:
+          name: alpine-simple1
+      - name: network-scripts
+        hostPath:
+          path: /etc/sysconfig/network-scripts

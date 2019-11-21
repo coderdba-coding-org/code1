@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+  labels:
+    component: kube-apiserver
+    tier: control-plane
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - command:
+    - kube-apiserver
+    - --allow-privileged=true
+    - --advertise-address={{ inventory_hostname }}
+    - --insecure-bind-address=127.0.0.1
+    - --bind-address=0.0.0.0
+    - --etcd-servers=https://{{ inventory_hostname }}:2379
+    - --service-cluster-ip-range={{ var_service_cluster_ip_range }}
+    - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,ResourceQuota
+    - --client-ca-file={{ var_kube_certs_dir }}/ca.pem
+    - --etcd-cafile={{ var_kube_certs_dir }}/ca.pem 
+    - --etcd-certfile={{ var_kube_certs_dir }}/kubernetes.pem 
+    - --etcd-keyfile={{ var_kube_certs_dir }}/kubernetes-key.pem 
+    - --kubelet-certificate-authority={{ var_kube_certs_dir }}/ca.pem 
+    - --kubelet-client-certificate={{ var_kube_certs_dir }}/kubernetes.pem 
+    - --kubelet-client-key={{ var_kube_certs_dir }}/kubernetes-key.pem 
+    - --service-account-key-file={{ var_kube_certs_dir }}/ca-key.pem 
+    - --tls-cert-file={{ var_kube_certs_dir }}/kubernetes.pem 
+    - --tls-private-key-file={{ var_kube_certs_dir }}/kubernetes-key.pem
+    - --secure-port=6443
+    image: {{ var_kube_apiserver_image }}
+    name: kube-apiserver
+    volumeMounts:
+    - mountPath: {{ var_kube_certs_dir }}
+      name: k8s-certs
+  volumes:
+  - hostPath:
+      path: {{ var_kube_certs_dir }}
+      type: Directory
+    name: k8s-certs

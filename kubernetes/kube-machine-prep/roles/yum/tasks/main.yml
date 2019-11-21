@@ -1,0 +1,14 @@
+- name: Create kubernetes yum repo file
+  copy:
+    src: files/kubernetes-yum.repo
+    dest: /etc/yum.repos.d
+
+- name: Install kubernetes command packages
+  yum:
+    name:
+      - kubectl-1.12.8-0
+      - kubelet-1.12.8-0
+      - kubeadm-1.12.8-0
+      - kubernetes-cni-0.7.5-0
+      - kubelet-1.12.8-0
+    state: present

@@ -1,0 +1,98 @@
+---
+kind: ConfigMap
+metadata:
+  annotations:
+    k8s-ns: kube-system
+  name: ip-controller
+apiVersion: v1
+data:
+  ip-controller.yaml: |-
+    ---
+    MemberIpSuffixes:
+      - "191"
+      - "192"
+      - "193"
+      - "194"
+    IngressIpSuffix: "190"
+    MaxFailedClaimAttempts: 5
+    PollingInterval: "10s"
+    NIC: "eth1"
+    Netmask: "/26"
+    Debug: true
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: ip-controller
+  name: ip-controller
+  annotations:
+    k8s-ns: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: ip-controller
+  strategy:
+    rollingUpdate:
+      maxSurge: 10%
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: ip-controller
+        load-balancer-ip-controller: "true"
+    spec:
+      priorityClassName: critical
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: k8s-app
+                  operator: In
+                  values:
+                  - ip-controller
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      containers:
+      - name: ip-controller
+        image: alpine
+        env:
+        - name: IP_CONTROLLER_CONFIG_PATH
+          value: "/opt/ip-controller/ip-controller.yaml"
+        - name: K8_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+        volumeMounts:
+        - name: config
+          mountPath: /opt/ip-controller
+        - name: network-scripts
+          mountPath: /etc/sysconfig/network-scripts
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - key: "prefetch"
+        operator: "Equal"
+        value: "inprogress"
+        effect: "NoSchedule"
+      hostNetwork: true
+      volumes:
+      - name: config
+        configMap:
+          name: ip-controller
+      - name: network-scripts
+        hostPath:
+          path: /etc/sysconfig/network-scripts

@@ -1,0 +1,144 @@
+secrets:
+  # kube_config for kubectl to connect to different clusters
+  kube-config:
+    path: secret/org/Kubernetes/kube-config
+
+deploy-secrets: &deploy_secrets
+  secrets:
+    - source: kube-config
+      target: config
+
+
+# NOTES:
+# CONTEXT (kube namespace) and ENV (the cluster) are supplied by the 'matrix' below
+# CONFIG is the variable that contains kube-config secret from the deploy-secrets step above
+# This includes verify using curl 
+
+deploy-steps: &deploy_steps
+  commands:
+    - mkdir -p ~/.kube/
+    - echo "$CONFIG" > ~/.kube/config
+    - ls -l ~/.kube/config
+    - kubectl config use-context ${CONTEXT}
+    - echo "Deploying to ${ENV}"
+    - kubectl create -f manifest1.yaml -n ${ENV} || kubectl replace -f manifest1.yaml -n ${ENV};
+    - RetVal=1
+    - echo "Verifying ${ENV}"
+    - if [ $ENV == cluster-lab ]; then
+    -   cluster_number="X9999"
+    - else
+    -   cluster_number =`echo $ENV | cut -d- -f3`
+    - fi
+    - url="https://proetheus-server.ingress$${cluster_number}.company.com"
+    - echo "my_url=$${url}"
+    - a=0
+    - while [ $$a -lt 40 ]; do
+    -   a=`expr $a + 1`
+    -   set +e
+    -   FoundVal=`curl -s $${url} | grep -i found |wc -l|sed 's/ //g'`
+    -   set -e
+    -   if [ $$FoundVal -eq 1 ]; then
+    -     RetVal=0
+    -     break
+    -   fi
+    -   sleep 15
+    - done
+    - echo $${RetVal}
+    - exit $${RetVal}
+
+#---------------------
+# PIPELINE
+#---------------------
+pipeline:
+
+  # overriding the default clone functionality to use head ref instead of merge ref
+  # this should no longer be needed with Drone 0.8.4 which comes with the flag DRONE_GITHUB_MERGE_REF that we'll likely set to false
+
+  fetch-head:
+    when:
+      event: pull_request
+    image: alpine/git
+    commands:
+      - git fetch --no-tags origin +refs/pull/${DRONE_PULL_REQUEST}/head
+      - git checkout -qf FETCH_HEAD
+
+  # This step only builds the helm manifest1.yaml - not run it
+  # NOTE:  "-n manifest1" is a 'release name' - which gets added to the prometheus server pod name "-f" supplies values file
+  build_manifest:
+    image: docker.company.com/app/platform/helm-template-docker
+    commands:
+      - helm template . -n indc -f incluster/values.yaml > manifest1.yaml
+
+  # This actually installs the created helm-manifest
+  deploy_prerelease-lab_pr:
+    when:
+      event: pull_request
+      matrix:
+        GROUP: lab
+    image: docker.company.com/kubernetes/kubectl
+    <<: *deploy_secrets
+    <<: *deploy_steps
+
+  # This actually installs the created helm-manifest
+  deploy_prod:
+    when:
+      event: push
+      branch: master
+      matrix:
+        GROUP: prod1
+    image: docker.company.com/kubernetes/kubectl
+    <<: *deploy_secrets
+    <<: *deploy_steps
+
+  # This actually installs the created helm-manifest
+  deploy_pilot:
+    when:
+      event: push
+      branch: master
+      matrix:
+        GROUP: pilot
+    image: docker.company.com/kubernetes/kubectl
+    <<: *deploy_secrets
+    <<: *deploy_steps
+  
+  # This actually installs the created helm-manifest
+  deploy_prod_in_sets:
+    when:
+      event: push
+      branch: master
+      matrix:
+        GROUP: day1set1
+    image: docker.company.com/kubernetes/kubectl
+    <<: *deploy_secrets
+    <<: *deploy_steps
+
+matrix:
+  include:
+
+# Lab
+    - ENV: cluster-lab
+      GROUP: lab
+      CONTEXT: kube-system
+
+# Prod
+    - ENV: cluster-east1
+      GROUP: prod1
+      CONTEXT: kube-system
+    - ENV: cluster-east2
+      GROUP: prod1
+      CONTEXT: kube-system
+    - ENV: cluster-east3
+      GROUP: prod1
+      CONTEXT: kube-system
+    - ENV: cluster-east4
+      GROUP: prod1
+      CONTEXT: kube-system
+    - ENV: cluster-west1
+      GROUP: prod2
+      CONTEXT: kube-system
+    - ENV: cluster-west2
+      GROUP: prod2
+      CONTEXT: kube-sysrem
+    - ENV: cluster-west3
+      GROUP: prod2
+      CONTEXT: kube-system

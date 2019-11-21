@@ -1,0 +1,80 @@
+{
+  "builders":
+  [
+    {
+      "type": "qemu",
+      "accelerator": "kvm",
+      "headless": true,
+      "qemuargs": [
+        [ "-m", "1024M" ],
+        [ "-smp", "cpus=1,maxcpus=16,cores=4" ]
+      ],
+      "disk_interface": "virtio",
+      "disk_size": 100000,
+      "format": "qcow2",
+      "net_device": "virtio-net",
+
+      "iso_url": "file://data/CentOS-7-x86_64-Minimal-1908.iso'
+      "iso_checksum": "9a2c47d97b9975452f7d582264e9fc16d108ed8252ac6816239a3b58cef5c53d"
+      "iso_checksum_type": "sha256",
+
+      "vm_name": "centos7-base-gp",
+      "output_directory": "centos7-base-img-gp",
+
+      "http_directory": "/data/conf/centos7-base".
+      "http_port_min": 10082,
+      "http_port_max": 10089,
+
+      "ssh_host_port_min": 2222,
+      "ssh_host_port_max": 2229,
+
+      "ssh_username": "root",
+      "ssh_password": "CHANGEME",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "1200s",
+
+      "boot_wait": "40s",
+      "boot_command": [
+        "<up><wait><tab><wait> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-base-ks.cfg<enter><wait>"
+      ],
+
+      "shutdown_command": "shutdown -P now"
+    }
+  ],
+
+  "provisioners":
+  [
+    {
+      "type": "shell-local",
+      "command": "tar zcf files-to-install.tar.gz files-to-install/"
+    },
+    {
+      "type": "file",
+      "source": "files-to-install.tar.gz",
+      "destination": "/root/files-to-install.tar.gz"
+    },
+    {
+      "type": "file",
+      "source": "files/elrepo-release-7.0-3.el7.elrepo.noarch.rpm",
+      "destination": "/tmp/elrepo-release-7.0-3.el7.elrepo.noarch.rpm"
+    },
+    {
+      "type": "shell",
+      "pause_before": "5s",
+      "inline": [
+        "cd /root/",
+        "tar zxf files-to-install.tar.gz",
+        "cd files-to-install/",
+        "chmod 755 ./install.sh",
+        "yum -y localinstall /tmp/elrepo-release-7.0-3.el7.elrepo.noarch.rpm",
+        "yum -y --enablerepo=elrepo-kernel install kernel-ml-5.0.13-1.el7.elrepo.x86_64",
+        "yum -y update --exclude=kernel*",
+        "yum clean all",
+        "mv /etc/resolv.conf /etc/resolv.conf.orig",
+        "cp resolv.conf /etc/resolv.conf",
+        "sed -i 's/GRUB_DEFAULT=.*/GRUB_DEFAULT=0/g' /etc/default/grub",
+        "grub2-mkconfig > /boot/grub2/grub.cfg"
+      ]
+    }
+  ]
+}
