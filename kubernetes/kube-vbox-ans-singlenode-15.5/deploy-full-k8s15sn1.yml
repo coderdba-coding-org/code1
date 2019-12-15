@@ -1,3 +1,8 @@
+- name: Firewall stop and disable
+  hosts: all
+  roles:
+  - { role: firewall }
+
 - name: Yum installs
   hosts: all
   roles:
