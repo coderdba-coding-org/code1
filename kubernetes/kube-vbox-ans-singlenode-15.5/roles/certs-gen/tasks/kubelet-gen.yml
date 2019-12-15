@@ -1,4 +1,0 @@
-- name: Generate kubelet certificates
-  shell:
-    cmd: ./kubelet-gen.sh
-    chdir: "{{ var_kube_certs_workdir }}"

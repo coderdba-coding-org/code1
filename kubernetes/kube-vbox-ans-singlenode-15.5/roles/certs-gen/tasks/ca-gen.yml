@@ -1,4 +1,0 @@
-- name: Generate CA
-  shell:
-    cmd: ./ca-gen.sh
-    chdir: "{{ var_kube_certs_workdir }}"

@@ -1,4 +1,0 @@
-- name: EXECUTING [BASE] DEPLOY
-  hosts: all
-  roles:
-  - { role: base,  tags: [ 'base' ], become: yes }
