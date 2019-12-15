@@ -20,4 +20,4 @@ EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
 # the .NodeRegistration.KubeletExtraArgs object in the configuration files instead. KUBELET_EXTRA_ARGS should be sourced from this file.
 EnvironmentFile=-/etc/sysconfig/kubelet
 ExecStart=
-ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS $KUBELET_NETWORK_ARGS $KUBELET_DNS_ARGS --client-ca-file={{ var_kube_certs_dir }}/ca.pem --tls-cert-file={{ var_kube_certs_dir }}/kubelet-{{ inventory_hostname }}.pem --tls-private-key-file={{ var_kube_certs_dir }}/kubelet-{{ inventory_hostname }}-key.pem --kubeconfig={{ var_kube_etc_dir }}/kubeconfig.kubelet-{{ inventory_hostname }} --allow-privileged
+ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS $KUBELET_NETWORK_ARGS $KUBELET_DNS_ARGS --client-ca-file={{ var_kube_certs_dir }}/ca.pem --tls-cert-file={{ var_kube_certs_dir }}/kubelet-{{ inventory_hostname }}.pem --tls-private-key-file={{ var_kube_certs_dir }}/kubelet-{{ inventory_hostname }}-key.pem --kubeconfig={{ var_kube_etc_dir }}/kubeconfig.kubelet-{{ inventory_hostname }} 
