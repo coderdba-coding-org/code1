@@ -18,9 +18,18 @@ var_kube_addons_dir:          /etc/kubernetes/addons
 var_etc_systemd_dir:         /etc/systemd/system
 var_usr_systemd_kubelet_dir: /usr/lib/systemd/system/kubelet.service.d
 
-var_kube_apiserver_image:          gcr.io/google_containers/kube-apiserver-amd64:v1.12.8
-var_kube_controller_manager_image: gcr.io/google_containers/kube-controller-manager-amd64:v1.12.8
-var_kube_scheduler_image:          gcr.io/google_containers/kube-scheduler-amd64:v1.12.8
-var_kube_proxy_image:              gcr.io/google-containers/kube-proxy-amd64:v1.12.8
+var_kube_apiserver_image:          gcr.io/google_containers/kube-apiserver-amd64:v1.15.5
+var_kube_controller_manager_image: gcr.io/google_containers/kube-controller-manager-amd64:v1.15.5
+var_kube_scheduler_image:          gcr.io/google_containers/kube-scheduler-amd64:v1.15.5
+var_kube_proxy_image:              gcr.io/google-containers/kube-proxy-amd64:v1.15.5
+
+var_kube_dns_image:                k8s.gcr.io/k8s-dns-kube-dns:1.14.13
+var_kube_dns_dnsmasq_nanny_image:  k8s.gcr.io/k8s-dns-dnsmasq-nanny:1.14.13
+var_kube_dns_sidecar_image:        k8s.gcr.io/k8s-dns-sidecar:1.14.13
+
+var_etcd_image:                    quay.io/coreos/etcd:v3.3.10 
+#var_etcd_image:                    quay.io/coreos/etcd:v3.2.24 
+
+var_flannel_image:                 quay.io/coreos/flannel:v0.11.0-amd64
 
 var_tmp_test_dir:  /tmp/test
