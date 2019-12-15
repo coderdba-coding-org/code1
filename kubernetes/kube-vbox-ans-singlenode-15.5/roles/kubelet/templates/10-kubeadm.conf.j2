@@ -1,0 +1,23 @@
+# Note: This dropin only works with kubeadm and kubelet v1.11+
+[Service]
+# -- commented
+#Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+# -- commented
+#Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
+#
+# -- added
+Environment="KUBELET_CONFIG_ARGS=--kubeconfig=/etc/kubernetes/kubelet-config.yaml --pod-manifest-path=/etc/kubernetes/manifests"
+#
+# -- added (NOTE - ADD THIS AFTER YOU INSTALL FLANNEL, AND THEN RESTART KUBELET)
+# Environment="KUBELET_NETWORK_ARGS=--network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir=/opt/cni/bin --node-ip={{ inventory_hostname }}"
+#
+# -- added
+Environment="KUBELET_DNS_ARGS=--cluster-dns={{ var_kube_dns_cluster_ip }} --cluster-domain=cluster.local"
+
+# This is a file that "kubeadm init" and "kubeadm join" generates at runtime, populating the KUBELET_KUBEADM_ARGS variable dynamically
+EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
+# This is a file that the user can use for overrides of the kubelet args as a last resort. Preferably, the user should use
+# the .NodeRegistration.KubeletExtraArgs object in the configuration files instead. KUBELET_EXTRA_ARGS should be sourced from this file.
+EnvironmentFile=-/etc/sysconfig/kubelet
+ExecStart=
+ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS $KUBELET_NETWORK_ARGS $KUBELET_DNS_ARGS --client-ca-file={{ var_kube_certs_dir }}/ca.pem --tls-cert-file={{ var_kube_certs_dir }}/kubelet-{{ inventory_hostname }}.pem --tls-private-key-file={{ var_kube_certs_dir }}/kubelet-{{ inventory_hostname }}-key.pem --kubeconfig={{ var_kube_etc_dir }}/kubeconfig.kubelet-{{ inventory_hostname }} --allow-privileged

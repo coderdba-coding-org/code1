@@ -1,0 +1,14 @@
+- name: Create kube-apiserver.yaml
+  template:
+    src: kube-apiserver.yaml.j2
+    dest: "{{ var_kube_manifests_dir }}/kube-apiserver.yaml"
+
+- name: Create kube-controller-manager.yaml
+  template:
+    src: kube-controller-manager.yaml.j2
+    dest: "{{ var_kube_manifests_dir }}/kube-controller-manager.yaml"
+
+- name: Create kube-scheduler.yaml
+  template:
+    src: kube-scheduler.yaml.j2
+    dest: "{{ var_kube_manifests_dir }}/kube-scheduler.yaml"

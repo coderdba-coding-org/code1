@@ -1,0 +1,17 @@
+#- hosts: ksn2
+#- hosts: 192.168.8.12
+- hosts: all
+  vars:
+    http_port: 80
+    max_clients: 200
+    file_name: "/tmp/ansible-run-start.marker"
+
+  #become: true
+  #remote_user: root
+
+  tasks:
+
+    - name: Echo date to a file
+      shell: date > {{ file_name }}
+
+   

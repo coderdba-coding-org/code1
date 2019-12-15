@@ -1,0 +1,26 @@
+var_service_cluster_ip_range:   10.96.0.0/12
+var_cluster_cidr:               10.20.0.0/16
+var_kube_dns_cluster_ip:        10.96.0.10
+var_kubernetes_svc_cluster_ip:  10.96.0.1
+
+var_flannel_interface: enp0s8
+
+var_kube_dns_dns_server:   10.96.0.10
+var_kube_dns_memory_limit: 150Mi
+var_kube_dns_domain:       cluster.local
+
+var_kube_certs_workdir:       /root/k8s/certs_work
+var_kube_etc_dir:             /etc/kubernetes
+var_kube_certs_dir:           /etc/kubernetes/pki
+var_kube_manifests_dir:       /etc/kubernetes/manifests
+var_kube_addons_dir:          /etc/kubernetes/addons
+
+var_etc_systemd_dir:         /etc/systemd/system
+var_usr_systemd_kubelet_dir: /usr/lib/systemd/system/kubelet.service.d
+
+var_kube_apiserver_image:          gcr.io/google_containers/kube-apiserver-amd64:v1.12.8
+var_kube_controller_manager_image: gcr.io/google_containers/kube-controller-manager-amd64:v1.12.8
+var_kube_scheduler_image:          gcr.io/google_containers/kube-scheduler-amd64:v1.12.8
+var_kube_proxy_image:              gcr.io/google-containers/kube-proxy-amd64:v1.12.8
+
+var_tmp_test_dir:  /tmp/test

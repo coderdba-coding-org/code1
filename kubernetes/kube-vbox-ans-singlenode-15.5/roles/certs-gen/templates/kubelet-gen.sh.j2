@@ -1,0 +1,7 @@
+cfssl gencert \
+-ca=ca.pem \
+-ca-key=ca-key.pem \
+-config=ca-config.json \
+-hostname={{ inventory_hostname }},{{ ansible_hostname }} \
+-profile=kubernetes kubelet-csr.json | \
+cfssljson -bare kubelet-{{ inventory_hostname }}

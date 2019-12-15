@@ -1,0 +1,5 @@
+- name: Copy /etc/environment from template
+  template:
+    src: etc-environment.j2
+    dest: /etc/environment
+    mode: "u=rw,g=r"

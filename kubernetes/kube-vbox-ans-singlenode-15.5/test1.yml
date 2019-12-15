@@ -1,0 +1,4 @@
+- name: Yum installs
+  hosts: all
+  roles:
+  - { role: scratch }

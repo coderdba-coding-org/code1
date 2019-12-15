@@ -1,0 +1,7 @@
+- name: Create /tmp/test directory
+  file:
+    #path: /tmp/ppp
+    path: "{{ var_tmp_test_dir }}"
+    state: directory
+    mode: 0750
+    recurse: yes
