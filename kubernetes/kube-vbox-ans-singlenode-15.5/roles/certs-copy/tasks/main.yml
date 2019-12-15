@@ -1,0 +1,33 @@
+#- name: Copy generated certs to "{{ var_kube_certs_dir }}"
+#  copy:
+#    src: "{{ item }}"
+#    dest: "{{ var_kube_certs_dir }}/."
+#    remote_src: yes
+#  with_fileglob:
+#    - "{{ var_kube_certs_workdir }}/*.pem"
+
+
+- name: Copy generated certs to "{{ var_kube_certs_workdir }}"
+  shell:
+    cmd: cp *.pem "{{ var_kube_certs_dir }}"
+    chdir: "{{ var_kube_certs_workdir }}"
+
+- name: Copy generated kubelet kubeconfig file to "{{ var_kube_etc_dir }}"
+  copy:
+    src: "{{ var_kube_certs_workdir }}/kubeconfig.kubelet-{{ inventory_hostname }}"
+    dest: "{{ var_kube_etc_dir }}/."
+    remote_src: yes
+
+- name: Copy generated kubelet kubeconfig file to /root/.kube/config
+  copy:
+    src: "{{ var_kube_certs_workdir }}/kubeconfig.kubelet-{{ inventory_hostname }}"
+    dest: /root/.kube/config
+    remote_src: yes
+
+- name: Copy generated kube-proxy kubeconfig file to "{{ var_kube_etc_dir }}"
+  copy:
+    src: "{{ var_kube_certs_workdir }}/kubeconfig.kube-proxy"
+    dest: "{{ var_kube_etc_dir }}/."
+    remote_src: yes
+
+

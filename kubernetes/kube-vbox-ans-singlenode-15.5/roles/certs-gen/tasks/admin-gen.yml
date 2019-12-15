@@ -1,0 +1,4 @@
+- name: Generate CA
+  shell:
+    cmd: ./admin-gen.sh
+    chdir: "{{ var_kube_certs_workdir }}"

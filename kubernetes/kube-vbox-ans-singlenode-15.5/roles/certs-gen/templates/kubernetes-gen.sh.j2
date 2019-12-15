@@ -1,0 +1,8 @@
+cfssl gencert \
+-ca=ca.pem \
+-ca-key=ca-key.pem \
+-config=ca-config.json \
+-hostname={{ var_kubernetes_svc_cluster_ip }},{{ inventory_hostname }},127.0.0.1,{{ ansible_hostname }},kubernetes.default \
+-profile=kubernetes kubernetes-csr.json | \
+cfssljson -bare kubernetes
+

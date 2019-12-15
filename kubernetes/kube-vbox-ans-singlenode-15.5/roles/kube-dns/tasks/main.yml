@@ -1,0 +1,16 @@
+- name: Create "{{ var_kube_addons_dir }}"
+  file:
+    path: "{{ var_kube_addons_dir }}"
+    state: directory
+    mode: 0750
+    recurse: yes
+
+- name: Create kube-dns.yaml
+  template:
+    src: kube-dns.yaml.j2
+    dest: "{{ var_kube_addons_dir }}/kube-dns.yaml"
+
+- name: Create kube-dns
+  shell:
+    cmd: kubectl create -f kube-dns.yaml
+    chdir: "{{ var_kube_addons_dir }}"

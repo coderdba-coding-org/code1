@@ -1,0 +1,26 @@
+- name: Create directories
+  import_tasks: create-dirs.yml
+
+- name: Copy cert create files to remote
+  import_tasks: copy-files.yml
+
+- name: Create CA
+  import_tasks: ca-gen.yml
+
+- name: Create Admin key-cert pair
+  import_tasks: admin-gen.yml
+
+- name: Create kube-proxy key-cert pair
+  import_tasks: kube-proxy-gen.yml
+
+- name: Create kubelet key-cert pair
+  import_tasks: kubelet-gen.yml
+
+- name: Create kubernetes key-cert pair
+  import_tasks: kubernetes-gen.yml
+
+- name: Create kubeconfig for kubelet
+  import_tasks: kubeconfig-kubelet-gen.yml
+
+- name: Create kubeconfig for kube-proxy
+  import_tasks: kubeconfig-kube-proxy-gen.yml
