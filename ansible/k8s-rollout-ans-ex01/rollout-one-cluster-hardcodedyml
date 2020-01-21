@@ -1,0 +1,22 @@
+---
+- name: Clone Repo
+  hosts: localhost
+  gather_facts: false 
+
+  tasks:
+  - git:
+      repo: https://www.github.com/myorg1/k8s-manifests.git
+      dest: /tmp/git/k8s-manifests
+
+- name: Create a Deployment by reading the definition from a local file
+  hosts: localhost
+  gather_facts: false 
+
+  tasks:
+  - k8s:
+      context: k8s-cluster1-context
+      kubeconfig: ~/.kube/k8s-clusters-all-config
+      namespace: k8s-lab-cluster
+      state: present
+      force: yes
+      src: /tmp/git/k8s-manifests/certrenew.yaml
