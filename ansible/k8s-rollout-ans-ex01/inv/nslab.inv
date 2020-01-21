@@ -1,10 +1,10 @@
 # this vars will be read with "hosts: localhost" in deploy yml
 [all:vars]
-k8scontext=k8s-lab-context
+k8scontext=k8s-lab-kube-system-context
 
 [labns]
-lab1-kube-system
-lab2-kube-system
+lab1
+lab2
 
 # this vars will not be read with "hosts: localhost" in deploy yml
 [labns:vars]
