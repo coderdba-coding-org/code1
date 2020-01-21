@@ -4,6 +4,10 @@
   gather_facts: false 
 
   tasks:
+  - file:
+      path: /tmp/git/k8s-manifests
+      state: absent
+      
   - git:
       repo: https://www.github.com/myorg1/k8s-manifests.git
       dest: /tmp/git/k8s-manifests
