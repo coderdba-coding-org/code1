@@ -3,7 +3,8 @@
 k8scontext=k8s-lab-context
 
 [labns]
-lab-kube-system
+lab1-kube-system
+lab2-kube-system
 
 # this vars will not be read with "hosts: localhost" in deploy yml
 [labns:vars]
