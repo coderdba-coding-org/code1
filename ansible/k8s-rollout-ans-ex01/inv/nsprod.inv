@@ -1,0 +1,11 @@
+# this vars will be read with "hosts: localhost" in deploy yml
+[all:vars]
+k8scontext=k8s-prod-kube-system-context
+
+[nslist]
+prod1
+prod1
+
+# this vars will not be read with "hosts: localhost" in deploy yml
+[nslist:vars]
+k8scontext=k8s-prod-kube-system-context
