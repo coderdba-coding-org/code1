@@ -1,0 +1,8 @@
+---
+
+- name: Clone a git repo to localhost
+  hosts: localhost
+  gather_facts: false
+  git:
+    repo: ssh://git@www.github.com:myorg1/k8s-manifests.git
+    dest: ./
