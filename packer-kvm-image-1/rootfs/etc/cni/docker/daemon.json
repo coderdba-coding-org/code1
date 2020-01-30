@@ -1,0 +1,11 @@
+{
+  "insecure-registries" : [
+    "127.0.0.1:30033",
+    "127.0.0.1:30034"
+  ],
+  "registry-mirrors" : [
+    "http://127.0.0.1:30033",
+    "http://127.0.0.1:30034"
+  ],
+  "max-concurrent-downloads": 1
+}
