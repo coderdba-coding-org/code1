@@ -2,7 +2,6 @@
 
 setenforce 0
 
-# Increase number of open file descriptors ugh
 echo "fs.file-max=791577" >> /etc/sysctl.conf
 echo "fs.inotify.max_user_instances=8192" >> /etc/sysctl.conf
 echo "net.ipv4.conf.eth0.rp_filter = 2" >> /etc/sysctl.conf
