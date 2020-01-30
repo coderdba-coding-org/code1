@@ -11,7 +11,7 @@ echo "* hard nofile 791577" >> /etc/security/limits.conf
 sysctl -w kernel.pid_max=4194303
 sysctl -p
 
-cp /tmp/tgtcerts/* /etc/pki/ca-trust/source/anchors
+cp /tmp/certs/* /etc/pki/ca-trust/source/anchors
 update-ca-trust
 
 rm /etc/yum.repos.d/*
