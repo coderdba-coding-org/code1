@@ -21,4 +21,22 @@ build_script: &build_script
       - echo $VERSION
       - image=/images/myimage-$VERSION.qcow2
       - >
-        if 
+        if [[ -f $image ]]; then
+          echo "Will not overwrite ${image}!"
+          echo "Image version ${VERSION} exists"
+          exit 1
+        fi
+      - cd /home/cloud-user/images/k8s/Workspace
+      - sed -i -e s/{IMAGE_VERSION}/$VERSION/g rootfs/opt/k8s/version
+      - mkisofs -J -rock -full-iso9660-filenames -V cidata -o seed.iso seed/
+      - "PACKER_LOG_PATH=/dev/stderr PACKER_LOG=1 PACKER_CACHE_DIR=~/images/packer_cache packer build \
+          -var 'artifactory_url=https://artifactory.company.com/artifactory' \
+          -var \"run_list=my-k8s-kvm-1\" \
+          -var 'builder_type=packer-openstack' \
+          -var 'provisioner=provisionerless' \
+          -var 'rpm=true' \
+          templates/centos_7_k8s_cluster.json"
+      # Packer exits in weird ways that should fail the build but doesn't
+      - >
+        if [[ $? != 0 ]]; then exit 1; fi;
+      - mv output/k8s-cluster /images/k8s-cluster-$VERSION.qcow2
