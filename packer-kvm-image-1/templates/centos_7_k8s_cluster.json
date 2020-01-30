@@ -1,1 +1,68 @@
-#
+{
+  "builders": [{
+    "type": "qemu",
+    "qemu_binary": "/usr/libexec/qemu-kvm",
+    "iso_url": "file:///images/centos7-base.qcow2",
+    "iso_checksum": "sdfsidfiskapkfj98e30198",
+    "iso_checksum_type": "none",
+    "output_directory": "output",
+    "shutdown_command": "sudo /sbin/shutdown -P now",
+    "disk_size": 100000,
+    "format": "qcow2",
+    "headless": true,
+    "accelerator": "kvm",
+    "http_directory": "http",
+    "http_port_min": 10082,
+    "http_port_max": 10089,
+    "ssh_host_port_min": 2222,
+    "ssh_host_port_max": 2229,
+    "ssh_username": "root",
+    "ssh_password": "INITIAL",
+    "ssh_port": 22,
+    "ssh_wait_timeout": "5m",
+    "vm_name": "k8s-cluster",
+    "net_device": "virtio-net",
+    "disk_interface": "virtio",
+    "disk_image": "true",
+    "boot_wait": "5s",
+    "boot_command":
+    [
+    ],
+    "qemuargs": [
+      [ "-m", "1024M"],
+      [ "-cdrom", "seed.iso" ]
+    ]
+  }],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "files/",
+      "destination": "/tmp"
+    },
+    {
+      "type": "file",
+      "source": "rootfs/",
+      "destination": "/tmp"
+    },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "PROVISIONER={{user `provisioner`}}",
+        "PROVISIONER_VERSION={{user `provisioner_version`}}",
+        "BUILD_OS_VERSION={{user `os_version`}}",
+        "ARTIFACTORY_URL={{user `artifactory_url`}}",
+        "BUILDER_TYPE={{user `builder_type`}}",
+        "BUILD_USER_ID={{user `build_user_id`}}",
+        "SOURCEAMI={{user `source_ami`}}",
+        "BUILD_LOC={{user `build_loc`}}",
+        "BUILD_FOR_USEIN={{user `build_for_usein`}}",
+        "RUN_LIST={{user `run_list`}}",
+        "RPM={{user `rpm`}}"
+      ],
+      "execute_command": "echo 'cloud-user' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "scripts": [
+        "scripts/k8s-packer-install.sh"
+      ]
+    }
+  ]
+}
