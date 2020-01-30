@@ -40,3 +40,32 @@ build_script: &build_script
       - >
         if [[ $? != 0 ]]; then exit 1; fi;
       - mv output/k8s-cluster /images/k8s-cluster-$VERSION.qcow2
+
+pipeline:
+  
+  setup-workspace:
+    image: drillster/drone-rsync
+    secrets:
+      - source: img-server-key
+        target: plugin_key
+    hosts: [ "imgsvr.company.com - or its ip address" ]
+    user: cloud-user
+    source: .
+    target: ~/images/k8s/Workspace
+    delete: true
+    recursive: true
+    
+  dev-release:
+    when:
+      event: push
+    environment:
+      V: 0.1.${DRONE_BUILD_NUMBER}
+    <<: *build_script
+
+  prod-release:
+    when:
+      branch: master
+      event: tag
+    environment:
+      V: "${DRONE_TAG}"
+    <<: *build_script
