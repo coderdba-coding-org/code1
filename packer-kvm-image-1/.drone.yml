@@ -1,1 +1,24 @@
-sss
+secrets:
+  img-svr-key:
+    path: secret/org/myorg/img-svr-key
+    
+build_script: &build_script
+    image: appleboy/drone-ssh:1.3.2
+    secrets:
+      - source: img-svr-key
+        target: plugin_key
+    host: imgsvr.company.com
+    user: cloud-user
+    envs: [ V ]
+    command_timeout: 600
+    script
+      - set x
+      - env |grep plugin
+      - sudo pkill packer
+      - sudo pkill qemu
+      - export VERSION=$V
+      - echo Build version is 
+      - echo $VERSION
+      - image=/images/myimage-$VERSION.qcow2
+      - >
+        if 
