@@ -1,4 +1,6 @@
-# KUBERNETES 15.5 ON CENTOS - ANSIBLE installing
+# ====================================================
+# KUBERNETES 15.5 ON CENTOS - ANSIBLE INSTALL
+# ====================================================
 
 ## STEPS
 
@@ -13,11 +15,12 @@ IP: 192.168.40.15
 If using Virtualbox - ensure virtualbox network exists for 192.168.40.X
 
 ### Ensure that /etc/hosts has the entry for the hostname and IP of the VM
-
+```
 [root@ksn5 ~]# cat /etc/hosts
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 192.168.40.15 ksn5
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+```
 
 ### Add a public key to the VM
 Generate a RSA key pair without passphrase  
@@ -93,8 +96,6 @@ add the following line to /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.c
 #### (Note: Change node-ip to the IP of the node)   
 Environment="KUBELET_NETWORK_ARGS=--network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir=/opt/cni/bin --node-ip=192.168.40.15"  
 
-
-
 - Ensure $NETWORK_ARGS is in ExecStart as follows:  
 #### (Note: Change node-ip to the IP of the node)
 ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS $KUBELET_NETWORK_ARGS $KUBELET_DNS_ARGS --client-ca-file=/etc/kubernetes/pki/ca.pem --tls-cert-file=/etc/kubernetes/pki/kubelet-192.168.40.15.pem --tls-private-key-file=/etc/kubernetes/pki/kubelet-192.168.40.15-key.pem --kubeconfig=/etc/kubernetes/kubeconfig.kubelet-192.168.40.15 --allow-privileged  
@@ -124,3 +125,28 @@ pod "kube-dns-7c88ffc4c5-42fp5" deleted
 ```
 
 #### Verify
+```
+[root@ksn5 ~]# kubectl get pods --all-namespaces -o wide
+NAMESPACE     NAME                           READY   STATUS    RESTARTS   AGE    IP              NODE   NOMINATED NODE   READINESS GATES
+kube-system   kube-apiserver-ksn5            1/1     Running   1          24m    192.168.40.15   ksn5   <none>           <none>
+kube-system   kube-controller-manager-ksn5   1/1     Running   1          24m    192.168.40.15   ksn5   <none>           <none>
+kube-system   kube-dns-7c88ffc4c5-z8r5z      3/3     Running   0          9m2s   10.20.0.2       ksn5   <none>           <none>
+kube-system   kube-flannel-ds-amd64-ntffx    1/1     Running   6          9m7s   192.168.40.15   ksn5   <none>           <none>
+kube-system   kube-proxy-s28fs               1/1     Running   1          20m    192.168.40.15   ksn5   <none>           <none>
+kube-system   kube-scheduler-ksn5            1/1     Running   1          24m    192.168.40.15   ksn5   <none>
+```
+
+## TROUBLESHOOTING
+
+### Error with kubectl logs command
+```
+dial tcp: lookup ksn5 on 10.97.40.216:53: no such host
+```
+
+Fix:  Ensure entry for VM hostname and IP address in /etc/hosts
+```
+[root@ksn5 ~]# cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+192.168.40.15 ksn5
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+```
