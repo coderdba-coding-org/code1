@@ -1,0 +1,54 @@
+- name: Firewall stop and disable
+  hosts: all
+  roles:
+  - { role: firewall }
+
+#- name: Yum installs
+#  hosts: all
+#  roles:
+#  - { role: yum }
+
+- name: Certificate generation
+  hosts: all
+  roles:
+  - { role: certs-gen }
+
+- name: Environment files
+  hosts: all
+  roles:
+  - { role: certs-copy }
+
+- name: Environment files
+  hosts: all
+  roles:
+  - { role: environment }
+
+- name: Etcd Service
+  hosts: all
+  roles:
+  - { role: etcd }
+
+- name: Manifests
+  hosts: all
+  roles:
+  - { role: manifests }
+
+- name: Kubelet config
+  hosts: all
+  roles:
+  - { role: kubelet }
+
+- name: kube-proxy
+  hosts: all
+  roles:
+  - { role: kube-proxy }
+
+- name: flannel
+  hosts: all
+  roles:
+  - { role: flannel }
+
+- name: kube-dns
+  hosts: all
+  roles:
+  - { role: kube-dns }
